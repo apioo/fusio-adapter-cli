@@ -24,6 +24,8 @@ namespace Fusio\Adapter\Cli\Action;
 use Fusio\Engine\ActionAbstract;
 use Fusio\Engine\ContextInterface;
 use Fusio\Engine\ParametersInterface;
+use Fusio\Engine\Request\HttpRequest;
+use Fusio\Engine\Request\RpcRequest;
 use Fusio\Engine\RequestInterface;
 use Symfony\Component\Process\Process;
 
@@ -97,15 +99,11 @@ class CliEngine extends ActionAbstract
 
     public function handle(RequestInterface $request, ParametersInterface $configuration, ContextInterface $context)
     {
-        $env = [];
-        if (!empty($this->env)) {
-            parse_str($this->env, $env);
-        }
-
+        $env = $this->getEnvVariables($request);
         $cwd = !empty($this->cwd) ? $this->cwd : null;
         $timeout = !empty($this->timeout) ? (int) $this->timeout : null;
 
-        $input = \json_encode($request->getBody());
+        $input = \json_encode($request->getPayload());
 
         $process = Process::fromShellCommandline($this->command, $cwd, $env, $input, $timeout);
         $process->run();
@@ -136,5 +134,36 @@ class CliEngine extends ActionAbstract
             [],
             $data
         );
+    }
+
+    private function getEnvVariables(RequestInterface $request): array
+    {
+        $env = [];
+        if ($request instanceof HttpRequest) {
+            $env = array_merge($env, $request->getUriFragments());
+            $env = array_merge($env, $request->getParameters());
+            $env = array_merge($env, $request->getHeaders());
+        } elseif ($request instanceof RpcRequest) {
+            $env = array_merge($env, $request->getArguments());
+        }
+
+        if (!empty($this->env)) {
+            $config = [];
+            parse_str($this->env, $config);
+            $env = array_merge($env, $config);
+        }
+
+        $result = [];
+        foreach ($env as $key => $value) {
+            if (is_array($value)) {
+                $value = implode(', ', $value);
+            }
+            $key = strtoupper(preg_replace('/[^A-Za-z0-9_]/', '_', $key));
+            if (is_scalar($value)) {
+                $result[$key] = $value;
+            }
+        }
+
+        return $result;
     }
 }
