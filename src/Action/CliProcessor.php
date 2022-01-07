@@ -26,22 +26,23 @@ use Fusio\Engine\Form\BuilderInterface;
 use Fusio\Engine\Form\ElementFactoryInterface;
 use Fusio\Engine\ParametersInterface;
 use Fusio\Engine\RequestInterface;
+use PSX\Http\Environment\HttpResponseInterface;
 
 /**
  * CliProcessor
  *
  * @author  Christoph Kappestein <christoph.kappestein@gmail.com>
  * @license http://www.gnu.org/licenses/agpl-3.0
- * @link    http://fusio-project.org
+ * @link    https://www.fusio-project.org/
  */
 class CliProcessor extends CliEngine
 {
-    public function getName()
+    public function getName(): string
     {
         return 'CLI-Processor';
     }
 
-    public function handle(RequestInterface $request, ParametersInterface $configuration, ContextInterface $context)
+    public function handle(RequestInterface $request, ParametersInterface $configuration, ContextInterface $context): HttpResponseInterface
     {
         $this->setCommand($configuration->get('command'));
         $this->setType($configuration->get('type'));
@@ -52,7 +53,7 @@ class CliProcessor extends CliEngine
         return parent::handle($request, $configuration, $context);
     }
 
-    public function configure(BuilderInterface $builder, ElementFactoryInterface $elementFactory)
+    public function configure(BuilderInterface $builder, ElementFactoryInterface $elementFactory): void
     {
         $options = [
             self::TYPE_TEXT   => self::TYPE_TEXT,

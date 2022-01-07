@@ -34,7 +34,7 @@ use Symfony\Component\Process\Process;
  *
  * @author  Christoph Kappestein <christoph.kappestein@gmail.com>
  * @license http://www.gnu.org/licenses/agpl-3.0
- * @link    http://fusio-project.org
+ * @link    https://www.fusio-project.org/
  */
 class CliEngine extends ActionAbstract
 {
@@ -42,57 +42,38 @@ class CliEngine extends ActionAbstract
     protected const TYPE_JSON   = 'application/json';
     protected const TYPE_BINARY = 'application/octet-stream';
 
-    /**
-     * @var string
-     */
-    protected $command;
-
-    /**
-     * @var string
-     */
-    protected $type;
-
-    /**
-     * @var string
-     */
-    protected $env;
-
-    /**
-     * @var string
-     */
-    protected $cwd;
-
-    /**
-     * @var string
-     */
-    protected $timeout;
+    protected ?string $command;
+    protected ?string $type = null;
+    protected ?string $env = null;
+    protected ?string $cwd = null;
+    protected ?int $timeout = null;
 
     public function __construct(?string $command = null)
     {
         $this->command = $command;
     }
 
-    public function setCommand($command)
+    public function setCommand(?string $command): void
     {
         $this->command = $command;
     }
 
-    public function setType($type)
+    public function setType(?string $type): void
     {
         $this->type = $type;
     }
 
-    public function setEnv($env)
+    public function setEnv(?string $env): void
     {
         $this->env = $env;
     }
 
-    public function setCwd($cwd)
+    public function setCwd(?string $cwd): void
     {
         $this->cwd = $cwd;
     }
 
-    public function setTimeout($timeout)
+    public function setTimeout(?int $timeout): void
     {
         $this->timeout = $timeout;
     }
