@@ -32,7 +32,7 @@ use Fusio\Engine\AdapterInterface;
  */
 class Adapter implements AdapterInterface
 {
-    public function getDefinition()
+    public function getDefinition(): string
     {
         return __DIR__ . '/../definition.json';
     }
