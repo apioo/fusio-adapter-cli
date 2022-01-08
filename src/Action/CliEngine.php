@@ -27,6 +27,7 @@ use Fusio\Engine\ParametersInterface;
 use Fusio\Engine\Request\HttpRequest;
 use Fusio\Engine\Request\RpcRequest;
 use Fusio\Engine\RequestInterface;
+use PSX\Http\Environment\HttpResponseInterface;
 use Symfony\Component\Process\Process;
 
 /**
@@ -97,7 +98,7 @@ class CliEngine extends ActionAbstract
         $this->timeout = $timeout;
     }
 
-    public function handle(RequestInterface $request, ParametersInterface $configuration, ContextInterface $context)
+    public function handle(RequestInterface $request, ParametersInterface $configuration, ContextInterface $context): HttpResponseInterface
     {
         $env = $this->getEnvVariables($request);
         $cwd = !empty($this->cwd) ? $this->cwd : null;
