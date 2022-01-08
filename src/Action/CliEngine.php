@@ -35,7 +35,7 @@ use Symfony\Component\Process\Process;
  *
  * @author  Christoph Kappestein <christoph.kappestein@gmail.com>
  * @license http://www.gnu.org/licenses/agpl-3.0
- * @link    http://fusio-project.org
+ * @link    https://fusio-project.org
  */
 class CliEngine extends ActionAbstract
 {
