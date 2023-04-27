@@ -3,7 +3,7 @@
  * Fusio
  * A web-application to create dynamically RESTful APIs
  *
- * Copyright (C) 2015-2022 Christoph Kappestein <christoph.kappestein@gmail.com>
+ * Copyright (C) 2015-2023 Christoph Kappestein <christoph.kappestein@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@
 
 namespace Fusio\Adapter\Cli\Action;
 
+use Fusio\Engine\Action\RuntimeInterface;
 use Fusio\Engine\ActionAbstract;
 use Fusio\Engine\ContextInterface;
 use Fusio\Engine\ParametersInterface;
@@ -43,57 +44,33 @@ class CliEngine extends ActionAbstract
     protected const TYPE_JSON   = 'application/json';
     protected const TYPE_BINARY = 'application/octet-stream';
 
-    /**
-     * @var string
-     */
-    protected $command;
+    protected ?string $command = null;
+    protected ?string $type = null;
+    protected ?string $env = null;
+    protected ?string $cwd = null;
+    protected ?int $timeout = null;
 
-    /**
-     * @var string
-     */
-    protected $type;
-
-    /**
-     * @var string
-     */
-    protected $env;
-
-    /**
-     * @var string
-     */
-    protected $cwd;
-
-    /**
-     * @var string
-     */
-    protected $timeout;
-
-    public function __construct(?string $command = null)
+    public function setCommand(?string $command): void
     {
         $this->command = $command;
     }
 
-    public function setCommand($command)
-    {
-        $this->command = $command;
-    }
-
-    public function setType($type)
+    public function setType(?string $type): void
     {
         $this->type = $type;
     }
 
-    public function setEnv($env)
+    public function setEnv(?string $env): void
     {
         $this->env = $env;
     }
 
-    public function setCwd($cwd)
+    public function setCwd(?string $cwd): void
     {
         $this->cwd = $cwd;
     }
 
-    public function setTimeout($timeout)
+    public function setTimeout(?int $timeout): void
     {
         $this->timeout = $timeout;
     }
@@ -102,11 +79,10 @@ class CliEngine extends ActionAbstract
     {
         $env = $this->getEnvVariables($request);
         $cwd = !empty($this->cwd) ? $this->cwd : null;
-        $timeout = !empty($this->timeout) ? (int) $this->timeout : null;
 
         $input = \json_encode($request->getPayload());
 
-        $process = Process::fromShellCommandline($this->command, $cwd, $env, $input, $timeout);
+        $process = Process::fromShellCommandline($this->command, $cwd, $env, $input, $this->timeout);
         $process->run();
 
         $httpCode = $process->isSuccessful() ? 200 : 500;

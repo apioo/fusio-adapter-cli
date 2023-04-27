@@ -3,7 +3,7 @@
  * Fusio
  * A web-application to create dynamically RESTful APIs
  *
- * Copyright (C) 2015-2022 Christoph Kappestein <christoph.kappestein@gmail.com>
+ * Copyright (C) 2015-2023 Christoph Kappestein <christoph.kappestein@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -48,7 +48,11 @@ class CliProcessor extends CliEngine
         $this->setType($configuration->get('type'));
         $this->setEnv($configuration->get('env'));
         $this->setCwd($configuration->get('cwd'));
-        $this->setTimeout($configuration->get('timeout'));
+
+        $timeout = $configuration->get('timeout');
+        if (!empty($timeout)) {
+            $this->setTimeout((int) $timeout);
+        }
 
         return parent::handle($request, $configuration, $context);
     }
