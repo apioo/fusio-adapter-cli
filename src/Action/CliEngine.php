@@ -21,7 +21,6 @@
 
 namespace Fusio\Adapter\Cli\Action;
 
-use Fusio\Engine\Action\RuntimeInterface;
 use Fusio\Engine\ActionAbstract;
 use Fusio\Engine\ContextInterface;
 use Fusio\Engine\ParametersInterface;
@@ -29,6 +28,7 @@ use Fusio\Engine\Request\HttpRequest;
 use Fusio\Engine\Request\RpcRequest;
 use Fusio\Engine\RequestInterface;
 use PSX\Http\Environment\HttpResponseInterface;
+use PSX\Http\Exception\InternalServerErrorException;
 use Symfony\Component\Process\Process;
 
 /**
@@ -82,7 +82,9 @@ class CliEngine extends ActionAbstract
 
         $input = \json_encode($request->getPayload());
 
-        $process = Process::fromShellCommandline($this->command, $cwd, $env, $input, $this->timeout);
+        $command = $this->command ?? throw new InternalServerErrorException('No command configured');
+
+        $process = Process::fromShellCommandline($command, $cwd, $env, $input, $this->timeout);
         $process->run();
 
         $httpCode = $process->isSuccessful() ? 200 : 500;
