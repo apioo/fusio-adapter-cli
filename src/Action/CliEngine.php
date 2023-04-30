@@ -123,7 +123,7 @@ class CliEngine extends ActionAbstract
             $env = array_merge($env, $request->getParameters());
             $env = array_merge($env, $request->getHeaders());
         } elseif ($request instanceof RpcRequest) {
-            $env = array_merge($env, $request->getArguments());
+            $env = array_merge($env, $request->getArguments()->getAll());
         }
 
         if (!empty($this->env)) {
