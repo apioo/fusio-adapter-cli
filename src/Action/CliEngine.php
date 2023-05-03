@@ -24,8 +24,6 @@ namespace Fusio\Adapter\Cli\Action;
 use Fusio\Engine\ActionAbstract;
 use Fusio\Engine\ContextInterface;
 use Fusio\Engine\ParametersInterface;
-use Fusio\Engine\Request\HttpRequest;
-use Fusio\Engine\Request\RpcRequest;
 use Fusio\Engine\RequestInterface;
 use PSX\Http\Environment\HttpResponseInterface;
 use PSX\Http\Exception\InternalServerErrorException;
@@ -117,14 +115,7 @@ class CliEngine extends ActionAbstract
 
     private function getEnvVariables(RequestInterface $request): array
     {
-        $env = [];
-        if ($request instanceof HttpRequest) {
-            $env = array_merge($env, $request->getUriFragments());
-            $env = array_merge($env, $request->getParameters());
-            $env = array_merge($env, $request->getHeaders());
-        } elseif ($request instanceof RpcRequest) {
-            $env = array_merge($env, $request->getArguments()->getAll());
-        }
+        $env = $request->getArguments()->getAll();
 
         if (!empty($this->env)) {
             $config = [];
