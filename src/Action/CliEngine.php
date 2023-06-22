@@ -44,11 +44,11 @@ class CliEngine implements ActionInterface
     protected const TYPE_JSON   = 'application/json';
     protected const TYPE_BINARY = 'application/octet-stream';
 
-    protected ?string $command = null;
-    protected ?string $type = null;
-    protected ?string $env = null;
-    protected ?string $cwd = null;
-    protected ?int $timeout = null;
+    private ?string $command = null;
+    private ?string $type = null;
+    private ?string $env = null;
+    private ?string $cwd = null;
+    private ?int $timeout = null;
 
     private FactoryInterface $response;
 
