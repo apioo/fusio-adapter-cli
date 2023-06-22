@@ -21,10 +21,12 @@
 
 namespace Fusio\Adapter\Cli\Action;
 
-use Fusio\Engine\ActionAbstract;
+use Fusio\Engine\Action\RuntimeInterface;
+use Fusio\Engine\ActionInterface;
 use Fusio\Engine\ContextInterface;
 use Fusio\Engine\ParametersInterface;
 use Fusio\Engine\RequestInterface;
+use Fusio\Engine\Response\FactoryInterface;
 use PSX\Http\Environment\HttpResponseInterface;
 use PSX\Http\Exception\InternalServerErrorException;
 use Symfony\Component\Process\Process;
@@ -36,7 +38,7 @@ use Symfony\Component\Process\Process;
  * @license http://www.gnu.org/licenses/agpl-3.0
  * @link    https://fusio-project.org
  */
-class CliEngine extends ActionAbstract
+class CliEngine implements ActionInterface
 {
     protected const TYPE_TEXT   = 'text/plain';
     protected const TYPE_JSON   = 'application/json';
@@ -47,6 +49,13 @@ class CliEngine extends ActionAbstract
     protected ?string $env = null;
     protected ?string $cwd = null;
     protected ?int $timeout = null;
+
+    private FactoryInterface $response;
+
+    public function __construct(RuntimeInterface $runtime)
+    {
+        $this->response = $runtime->getResponse();
+    }
 
     public function setCommand(?string $command): void
     {
@@ -115,8 +124,7 @@ class CliEngine extends ActionAbstract
 
     private function getEnvVariables(RequestInterface $request): array
     {
-        $env = $request->getArguments()->getAll();
-
+        $env = $request->getArguments();
         if (!empty($this->env)) {
             $config = [];
             parse_str($this->env, $config);

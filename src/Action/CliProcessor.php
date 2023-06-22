@@ -21,6 +21,7 @@
 
 namespace Fusio\Adapter\Cli\Action;
 
+use Fusio\Engine\ConfigurableInterface;
 use Fusio\Engine\ContextInterface;
 use Fusio\Engine\Form\BuilderInterface;
 use Fusio\Engine\Form\ElementFactoryInterface;
@@ -35,7 +36,7 @@ use PSX\Http\Environment\HttpResponseInterface;
  * @license http://www.gnu.org/licenses/agpl-3.0
  * @link    https://fusio-project.org
  */
-class CliProcessor extends CliEngine
+class CliProcessor extends CliEngine implements ConfigurableInterface
 {
     public function getName(): string
     {
