@@ -7,6 +7,5 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 
 return static function (ContainerConfigurator $container) {
     $services = ServiceBuilder::build($container);
-    $services->set(CliEngine::class);
     $services->set(CliProcessor::class);
 };

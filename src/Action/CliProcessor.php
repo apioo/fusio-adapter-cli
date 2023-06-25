@@ -21,13 +21,15 @@
 
 namespace Fusio\Adapter\Cli\Action;
 
-use Fusio\Engine\ConfigurableInterface;
+use Fusio\Engine\ActionAbstract;
 use Fusio\Engine\ContextInterface;
+use Fusio\Engine\Exception\ConfigurationException;
 use Fusio\Engine\Form\BuilderInterface;
 use Fusio\Engine\Form\ElementFactoryInterface;
 use Fusio\Engine\ParametersInterface;
 use Fusio\Engine\RequestInterface;
 use PSX\Http\Environment\HttpResponseInterface;
+use Symfony\Component\Process\Process;
 
 /**
  * CliProcessor
@@ -36,8 +38,12 @@ use PSX\Http\Environment\HttpResponseInterface;
  * @license http://www.gnu.org/licenses/agpl-3.0
  * @link    https://fusio-project.org
  */
-class CliProcessor extends CliEngine implements ConfigurableInterface
+class CliProcessor extends ActionAbstract
 {
+    private const TYPE_TEXT   = 'text/plain';
+    private const TYPE_JSON   = 'application/json';
+    private const TYPE_BINARY = 'application/octet-stream';
+
     public function getName(): string
     {
         return 'CLI-Processor';
@@ -45,17 +51,54 @@ class CliProcessor extends CliEngine implements ConfigurableInterface
 
     public function handle(RequestInterface $request, ParametersInterface $configuration, ContextInterface $context): HttpResponseInterface
     {
-        $this->setCommand($configuration->get('command'));
-        $this->setType($configuration->get('type'));
-        $this->setEnv($configuration->get('env'));
-        $this->setCwd($configuration->get('cwd'));
+        $command = $configuration->get('command');
+        if (empty($command)) {
+            throw new ConfigurationException('No command configured');
+        }
+
+        $type = $configuration->get('type');
+        $env = $configuration->get('env');
+        $cwd = $configuration->get('cwd');
 
         $timeout = $configuration->get('timeout');
         if (!empty($timeout)) {
-            $this->setTimeout((int) $timeout);
+            $timeout = (int) $timeout;
+        } else {
+            $timeout = null;
         }
 
-        return parent::handle($request, $configuration, $context);
+        $env = $this->getEnvVariables($request, $env);
+        $input = \json_encode($request->getPayload());
+
+        $process = Process::fromShellCommandline($command, $cwd, $env, $input, $timeout);
+        $process->run();
+
+        $httpCode = $process->isSuccessful() ? 200 : 500;
+        $exitCode = $process->getExitCode();
+        $output = $process->getOutput();
+
+        if ($type === self::TYPE_JSON) {
+            $data = [
+                'exitCode' => $exitCode,
+                'output' => \json_decode($output),
+            ];
+        } elseif ($type === self::TYPE_BINARY) {
+            $data = [
+                'exitCode' => $exitCode,
+                'output' => base64_encode($output),
+            ];
+        } else {
+            $data = [
+                'exitCode' => $exitCode,
+                'output' => $output,
+            ];
+        }
+
+        return $this->response->build(
+            $httpCode,
+            [],
+            $data
+        );
     }
 
     public function configure(BuilderInterface $builder, ElementFactoryInterface $elementFactory): void
@@ -71,5 +114,28 @@ class CliProcessor extends CliEngine implements ConfigurableInterface
         $builder->add($elementFactory->newInput('env', 'Env', 'text', 'Optional environment variables passed to the process i.e. "foo=bar&bar=foo"'));
         $builder->add($elementFactory->newInput('cwd', 'Cwd', 'text', 'Optional current working dir'));
         $builder->add($elementFactory->newInput('timeout', 'Timout', 'number', 'Optional maximum execution timeout'));
+    }
+
+    private function getEnvVariables(RequestInterface $request, ?string $userEnv): array
+    {
+        $env = $request->getArguments();
+        if (!empty($userEnv)) {
+            $config = [];
+            parse_str($userEnv, $config);
+            $env = array_merge($env, $config);
+        }
+
+        $result = [];
+        foreach ($env as $key => $value) {
+            if (is_array($value)) {
+                $value = implode(', ', $value);
+            }
+            $key = strtoupper(preg_replace('/[^A-Za-z0-9_]/', '_', $key));
+            if (is_scalar($value)) {
+                $result[$key] = $value;
+            }
+        }
+
+        return $result;
     }
 }
