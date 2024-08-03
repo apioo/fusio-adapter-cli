@@ -118,7 +118,7 @@ class CliProcessor extends ActionAbstract
     private function getEnvVariables(RequestInterface $request, ?string $userEnv): array
     {
         $env = $request->getArguments();
-        if (!empty($userEnv)) {
+        if ($userEnv !== null) {
             $config = [];
             parse_str($userEnv, $config);
             $env = array_merge($env, $config);
@@ -129,7 +129,8 @@ class CliProcessor extends ActionAbstract
             if (is_array($value)) {
                 $value = implode(', ', $value);
             }
-            $key = strtoupper(preg_replace('/[^A-Za-z0-9_]/', '_', $key));
+
+            $key = strtoupper(preg_replace('/[^A-Za-z0-9_]/', '_', (string) $key));
             if (is_scalar($value)) {
                 $result[$key] = $value;
             }
