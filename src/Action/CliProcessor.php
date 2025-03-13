@@ -130,7 +130,7 @@ class CliProcessor extends ActionAbstract
                 $value = implode(', ', $value);
             }
 
-            $key = strtoupper(preg_replace('/[^A-Za-z0-9_]/', '_', (string) $key));
+            $key = strtoupper((string) preg_replace('/[^A-Za-z0-9_]/', '_', (string) $key));
             if (is_scalar($value)) {
                 $result[$key] = $value;
             }
