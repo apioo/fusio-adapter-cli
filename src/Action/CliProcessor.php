@@ -115,6 +115,9 @@ class CliProcessor extends ActionAbstract
         $builder->add($elementFactory->newInput('timeout', 'Timout', 'number', 'Optional maximum execution timeout'));
     }
 
+    /**
+     * @return array<string, scalar>
+     */
     private function getEnvVariables(RequestInterface $request, ?string $userEnv): array
     {
         $env = $request->getArguments();
