@@ -112,7 +112,7 @@ class CliProcessor extends ActionAbstract
         $builder->add($elementFactory->newSelect('type', 'Content-Type', $options, 'The content type which is produced by the command'));
         $builder->add($elementFactory->newInput('env', 'Env', 'text', 'Optional environment variables passed to the process i.e. "foo=bar&bar=foo"'));
         $builder->add($elementFactory->newInput('cwd', 'Cwd', 'text', 'Optional current working dir'));
-        $builder->add($elementFactory->newInput('timeout', 'Timout', 'number', 'Optional maximum execution timeout'));
+        $builder->add($elementFactory->newInput('timeout', 'Timeout', 'number', 'Optional maximum execution timeout'));
     }
 
     /**
